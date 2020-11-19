@@ -17,7 +17,7 @@ predict(model, x, qθ::GaussPs; N=100) =begin
         for (θ,μ,ωsq) in zip(psa,qθ.ps,qθ.ωsq)
              θ .= μ .+ randn(size(μ))./ωsq
         end
-        model_aux(x)
+        model_aux(x) # evaluated at psa=[θ]
     end
     map((n)->sample(),1:N)
 end
