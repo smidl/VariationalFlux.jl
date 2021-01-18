@@ -2,3 +2,7 @@ name = "VariationalAdam"
 uuid = "52528144-2237-4c84-bc2d-678fad91db5e"
 authors = ["smidl <vasek.smidl@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
