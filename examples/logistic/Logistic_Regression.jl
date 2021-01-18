@@ -26,10 +26,19 @@ PS=Vector()
 AL=Vector()
 
 
-qμ, λ = vtrain_ardvb!(loss,ps,data,opt; σ0=1e1,
+qps, λ = vtrain_ardvb!(loss,ps,data,opt; σ0=1e1,
     cb=(ps,logα)->(push!(PS,deepcopy(hcat(ps...))); push!(AL,deepcopy(hcat(logα...)));))
 
 pal = hcat(AL...)
 pps = hcat(PS...)
-plot(qμ.,errorbar=)
+plot(pps')
 
+# test prediction
+μ,σμ = qps.ps[1], qps.σps[1]
+plot(μ,errorbar=sqrt.(σμ))
+
+i_relevant = μ.>sqrt.(σμ)
+
+model_relevant(X)=σ.(X[:,i_relevant]*θ[i_relevant])
+scatter(y,marker=:star,fillalpha=0,label="data")
+plot!(model_relevant(X),label="model")

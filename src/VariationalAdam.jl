@@ -1,6 +1,6 @@
 module VariationalAdam
 
 include("vadam.jl")
-export vtrain!, train_ardvb!, GaussPs, predict
+export vtrain!, vtrain_ardvb!, GaussPs, predict
 
 end
