@@ -25,7 +25,7 @@ for k=1:100
     #
     
     niter = 10000
-    opt = ADAM(0.01)
+    opt = RMSProp(0.01)
     data = repeated((  ), niter)
     
     # PS=Vector()

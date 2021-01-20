@@ -33,6 +33,9 @@ predict(model, x, qθ::GaussPs; N=100) =begin
     map((n)->sample(),1:N)
 end
 
+# variance of ADAM is 
+variance_of(opt::ADAM,psi)=opt.state[psi][2]
+variance_of(opt::RMSProp,psi)=opt.acc[psi]
 
 # working code
 function vtrain!(loss, ps, data, opt; cb = (ps) -> (), σ0=1e4)
@@ -56,7 +59,7 @@ function vtrain!(loss, ps, data, opt; cb = (ps) -> (), σ0=1e4)
         update!(opt, ps, gs)
 
         for i=1:length(ps)
-            σps[i].=1.0./sqrt.(opt.state[ps[i]][2])
+            σps[i].=1.0./sqrt.(variance_of(opt,ps[i]))
         end
         cb(ps)
     end
@@ -98,7 +101,7 @@ function vtrain_ard!(loss, ps, data, opt; cb = () -> (), ω0=1e4, logα0=1e-2)
         update!(optα, logα, gα)
 
         for i=1:length(ps)
-            ωsq[i].=sqrt.(opt.state[ps[i]][2])
+            ωsq[i].=sqrt.(variance_of(opt,ps[i]))
         end
         cb(ps,logα)
     end
@@ -141,7 +144,7 @@ function vtrain_ardvb!(loss, ps, data, opt; cb = (a,b) -> (), σ0=1e2, λ0=1e-2,
 
         # store ADAM internals in σ
         for i=1:length(ps)
-            σps[i].=1.0./sqrt.(opt.state[ps[i]][2])
+            σps[i].=1.0./sqrt.(variance_of(opt,ps[i]))
         end
 
         # VB update for λ

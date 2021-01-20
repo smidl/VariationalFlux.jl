@@ -14,12 +14,13 @@ y = [ones(10); zeros(11)]
 ndim = size(X,2)
 
 niter=10000
-θ=randn(ndim)
+θ=ones(ndim);#randn(ndim)
 m(X) = σ.(X*θ)                  # pravdepodobnost ze y bude 0.
 loss(X,y) = sum(Flux.Losses.binarycrossentropy.(m(X),y))/size(y,2) 
 ps = Flux.params(θ)
 
-opt = ADAM(0.1)
+opt = RMSProp(0.01)
+#opt = ADAM(0.1)
 data = repeated((X, y ), niter)
 
 PS=Vector()
