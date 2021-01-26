@@ -18,6 +18,13 @@ function clip!(A, tol)
         end
     end
 end
+function clipnorm!( Δ, thresh)
+    Δnrm = norm(Δ)
+    if Δnrm > thresh
+        rmul!(Δ, thresh / Δnrm)
+    end
+    return Δ
+end
 
 
 predict(model, x, qθ::GaussPs; N=100) =begin
@@ -133,7 +140,7 @@ function vtrain_ardvb!(loss, ps, data, opt; cb = (a,b) -> (), σ0=1e2, λ0=1e-2,
 
         if clip>0.0
             for i=1:length(ps)
-                clip!(gs[ps[i]],clip)
+                clipnorm!(gs[ps[i]],clip)
             end # ps is random now    
         end
 
