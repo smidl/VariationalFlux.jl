@@ -1,4 +1,4 @@
-name = "VariationalAdam"
+name = "VariationalFlux"
 uuid = "52528144-2237-4c84-bc2d-678fad91db5e"
 authors = ["smidl <vasek.smidl@gmail.com>"]
 version = "0.1.0"
