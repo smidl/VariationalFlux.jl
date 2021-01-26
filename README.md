@@ -1,7 +1,7 @@
-# VariationalAdam
-Implementation of Variational ADAM using Flux
+# VariationalFlux
+Implementation of Variational Bayes methods using  Flux
 
-The method is based on paper [1] that is proposing to use adaptive SDG algorithms such as ADAM / RMSProp to estimate variance of the variational approximation. Instead of estimating the parameters (ps) of conventional Flux models, the method provides estimates of the parameter and its variance:
+The primary motivation is the method presented in [1] that is proposing to use adaptive SDG algorithms such as ADAM / RMSProp to estimate variance of the variational approximation. Instead of estimating the parameters (ps) of conventional Flux models, the method provides estimates of the parameter and its variance:
 g(param)=N(ps,σps).
 
 ```julia
