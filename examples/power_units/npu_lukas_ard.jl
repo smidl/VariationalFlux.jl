@@ -25,13 +25,14 @@ for k=1:100
     #
     
     niter = 10000
-    opt = RMSProp(0.01)
+    opt = ADAM(0.1)
     data = repeated((  ), niter)
     
     # PS=Vector()
     # AL=Vector()
     
     ps=params(p,w)
+    Flux.train!(()->llik(p,w),ps,data,opt)
     qμ, λ = vtrain_ardvb!(()->llik(p,w),ps,data,opt; σ0=1e-2, λ0=1e-4)
         # cb=(ps,logα)->(push!(PS,deepcopy(hcat(ps...))); push!(AL,deepcopy(hcat(logα...)));))
     
