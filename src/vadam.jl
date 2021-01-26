@@ -1,5 +1,4 @@
 using LinearAlgebra
-using Distributions
 using Flux
 
 import Flux.Optimise:  batchmemaybe, update!
