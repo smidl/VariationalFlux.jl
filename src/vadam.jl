@@ -116,7 +116,7 @@ end
 
 
 # train model with ARD using VADAM on the model and VB update on precision
-function vtrain_ardvb!(loss, ps, data, opt; cb = (a,b) -> (), σ0=1e2, λ0=1e-2, clip=0.0)
+function vtrain_ardvb!(loss, ps, data, opt; cb = (a,b) -> (), σ0=1e-3, λ0=1e-2, clip=0.0)
     ps_mean = deepcopy(ps)    # mean (i.e. ps as it is in adam)
     σps = deepcopy(ps)        # precision 
     λ = deepcopy(ps);         # precision of prior of every ps in ARD
