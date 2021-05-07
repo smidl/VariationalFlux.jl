@@ -26,25 +26,46 @@ function clipnorm!( Δ, thresh)
 end
 
 
-predict(model, x, qθ::GaussPs; N=100) =begin
+function sample!(psa,qθ::GaussPs)
+    for (θ,μ,σps) in zip(psa,qθ.ps,qθ.σps)
+        θ .= μ .+ randn(size(μ)).*σps
+   end
+end
+
+
+function sample(qθ::GaussPs)
+    psa = deepcopy(qθ.ps)
+    for (θ,μ,σps) in zip(psa,qθ.ps,qθ.σps)
+         θ .= μ .+ randn(size(μ)).*σps
+    end
+    psa
+end
+
+
+predict(model, qθ::GaussPs, x) =begin
     model_aux = deepcopy(model)
     psa = Flux.params(model_aux)
     
-    function sample()
-        for (θ,μ,ωsq) in zip(psa,qθ.ps,qθ.ωsq)
-             θ .= μ .+ randn(size(μ)).*σps
-        end
-        model_aux(x) # evaluated at psa=[θ]
-    end
-    map((n)->sample(),1:N)
+    sample!(psa,qθ); 
+    model_aux(x)
 end
+
+
+predict(model, qθ::GaussPs) =begin
+    model_aux = deepcopy(model)
+    psa = Flux.params(model_aux)
+    
+    sample!(psa,qθ); 
+    model_aux
+end
+
 
 # variance of ADAM is 
 variance_of(opt::ADAM,psi)=opt.state[psi][2]
 variance_of(opt::RMSProp,psi)=opt.acc[psi]
 
 # working code
-function vtrain!(loss, ps, data, opt; cb = (ps) -> (), σ0=1e4)
+function vtrain!(loss, ps, data, opt, N; cb = (ps) -> (), σ0=1e4)
     ps_mean = deepcopy(ps)
     σps = deepcopy(ps)
     map((x)->(x.=σ0) , σps)
@@ -65,7 +86,7 @@ function vtrain!(loss, ps, data, opt; cb = (ps) -> (), σ0=1e4)
         update!(opt, ps, gs)
 
         for i=1:length(ps)
-            σps[i].=1.0./sqrt.(variance_of(opt,ps[i]))
+            σps[i].=1.0./sqrt.(N*variance_of(opt,ps[i]))
         end
         cb(ps)
     end
@@ -75,7 +96,7 @@ end
 # alternative 1, TODO
 
 # working code
-function vtrain_ard!(loss, ps, data, opt; cb = () -> (), ω0=1e4, logα0=1e-2)
+function vtrain_ard!(loss, ps, data, opt, N; cb = () -> (), ω0=1e4, logα0=1e-2)
     ps_mean = deepcopy(ps)
     ωsq = deepcopy(ps)
     logα = deepcopy(ps); # precision of every ps
@@ -107,7 +128,7 @@ function vtrain_ard!(loss, ps, data, opt; cb = () -> (), ω0=1e4, logα0=1e-2)
         update!(optα, logα, gα)
 
         for i=1:length(ps)
-            ωsq[i].=sqrt.(variance_of(opt,ps[i]))
+            ωsq[i].=sqrt.(N*variance_of(opt,ps[i]))
         end
         cb(ps,logα)
     end
@@ -116,7 +137,7 @@ end
 
 
 # train model with ARD using VADAM on the model and VB update on precision
-function vtrain_ardvb!(loss, ps, data, opt; cb = (a,b) -> (), σ0=1e-3, λ0=1e-2, clip=0.0)
+function vtrain_ardvb!(loss, ps, data, opt, N; cb = (a,b) -> (), σ0=1e-3, λ0=1e-2, clip=0.0)
     ps_mean = deepcopy(ps)    # mean (i.e. ps as it is in adam)
     σps = deepcopy(ps)        # precision 
     λ = deepcopy(ps);         # precision of prior of every ps in ARD
@@ -150,7 +171,7 @@ function vtrain_ardvb!(loss, ps, data, opt; cb = (a,b) -> (), σ0=1e-3, λ0=1e-2
 
         # store ADAM internals in σ
         for i=1:length(ps)
-            σps[i].=1.0./sqrt.(variance_of(opt,ps[i]))
+            σps[i].=1.0./sqrt.(N*variance_of(opt,ps[i]))
         end
 
         # VB update for λ
